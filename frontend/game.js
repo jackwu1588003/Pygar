@@ -119,6 +119,10 @@ function initSocket() {
         leaderboard.classList.remove('hidden');
         playerStats.classList.remove('hidden');
 
+        // Center camera immediately
+        camera.x = Math.max(0, Math.min(MAP_WIDTH - canvas.width, playerData.x - canvas.width / 2));
+        camera.y = Math.max(0, Math.min(MAP_HEIGHT - canvas.height, playerData.y - canvas.height / 2));
+
         // Haptic feedback on spawn
         vibrate(50);
 
@@ -136,6 +140,7 @@ function initSocket() {
         }
 
         // Update non-interpolated data directly
+        gameState.players = state.players; // Restore this for fallback
         gameState.leaderboard = state.leaderboard;
         gameState.food = state.food; // Food doesn't move much, instant update is fine
         gameState.obstacles = state.obstacles;
@@ -241,25 +246,22 @@ function handleTouchStart(event) {
 /**
  * Update camera to follow player
  */
-function updateCamera() {
-    if (!playerData || !isAlive) return;
+/**
+ * Update camera to follow player
+ */
+function updateCamera(player) {
+    if (!player) return;
 
-    // Find current player in game state
-    const currentPlayer = gameState.players.find(p => p.id === playerId);
-    if (currentPlayer) {
-        playerData = currentPlayer;
+    // Smooth camera follow
+    const targetX = player.x - canvas.width / 2;
+    const targetY = player.y - canvas.height / 2;
 
-        // Smooth camera follow
-        const targetX = currentPlayer.x - canvas.width / 2;
-        const targetY = currentPlayer.y - canvas.height / 2;
+    camera.x += (targetX - camera.x) * 0.1;
+    camera.y += (targetY - camera.y) * 0.1;
 
-        camera.x += (targetX - camera.x) * 0.1;
-        camera.y += (targetY - camera.y) * 0.1;
-
-        // Clamp camera to map bounds
-        camera.x = Math.max(0, Math.min(MAP_WIDTH - canvas.width, camera.x));
-        camera.y = Math.max(0, Math.min(MAP_HEIGHT - canvas.height, camera.y));
-    }
+    // Clamp camera to map bounds
+    camera.x = Math.max(0, Math.min(MAP_WIDTH - canvas.width, camera.x));
+    camera.y = Math.max(0, Math.min(MAP_HEIGHT - canvas.height, camera.y));
 }
 
 /**
@@ -374,6 +376,7 @@ function render() {
     if (currentInterpolatedPlayer) {
         // Update the global playerData with interpolated values so camera follows smoothly
         playerData = currentInterpolatedPlayer;
+        updateCamera(currentInterpolatedPlayer);
     }
 
     // Draw players (sorted by mass so larger players draw on top)
@@ -661,7 +664,6 @@ function updateUI() {
  * Game loop
  */
 function gameLoop() {
-    updateCamera();
     render();
     requestAnimationFrame(gameLoop);
 }
