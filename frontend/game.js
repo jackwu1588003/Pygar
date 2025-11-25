@@ -577,6 +577,32 @@ function init() {
         themeToggle.addEventListener('click', toggleTheme);
     }
 
+    // Random name generator
+    const randomNames = [
+        "Blobby", "Chunky", "Wobbly", "Squishy", "Puff",
+        "Zippy", "Bouncy", "Fluffy", "Spiky", "Gloopy",
+        "Turbo", "Sonic", "Flash", "Dash", "Zoom",
+        "Titan", "Goliath", "Rex", "Boss", "King",
+        "Ninja", "Shadow", "Ghost", "Viper", "Cobra",
+        "Luna", "Star", "Comet", "Nova", "Cosmos",
+        "Cookie", "Muffin", "Taco", "Pizza", "Burger"
+    ];
+
+    function generateRandomName() {
+        const name = randomNames[Math.floor(Math.random() * randomNames.length)];
+        playerNameInput.value = name;
+        vibrate(10);
+    }
+
+    // Initialize with a random name
+    generateRandomName();
+
+    // Random name button
+    const randomNameBtn = document.getElementById('randomNameBtn');
+    if (randomNameBtn) {
+        randomNameBtn.addEventListener('click', generateRandomName);
+    }
+
     // Event listeners
     playButton.addEventListener('click', joinGame);
     respawnButton.addEventListener('click', respawn);

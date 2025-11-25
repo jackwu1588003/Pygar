@@ -99,9 +99,22 @@ body {
     opacity: 0.9;
 }
 
+/* Input group */
+.input-group {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    width: 100%;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 /* Input field */
 input[type="text"] {
-    width: 300px;
+    flex: 1;
     padding: 15px 20px;
     font-size: 1.1em;
     border: 2px solid rgba(255, 255, 255, 0.3);
@@ -109,8 +122,8 @@ input[type="text"] {
     background: rgba(255, 255, 255, 0.2);
     color: var(--text-color);
     outline: none;
-    margin-bottom: 20px;
     transition: all 0.3s ease;
+    /* Remove margin-bottom as it's handled by input-group */
 }
 
 input[type="text"]::placeholder {
@@ -125,6 +138,23 @@ input[type="text"]:focus {
     border-color: #667eea;
     background: rgba(255, 255, 255, 0.3);
     box-shadow: 0 0 20px rgba(102, 126, 234, 0.5);
+}
+
+/* Random button */
+#randomNameBtn {
+    padding: 15px;
+    font-size: 1.2em;
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: var(--text-color);
+}
+
+#randomNameBtn:hover {
+    background: rgba(255, 255, 255, 0.4);
+    transform: rotate(15deg);
 }
 
 /* Buttons */
