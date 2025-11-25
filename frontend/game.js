@@ -592,8 +592,35 @@ function init() {
     // Mouse controls (desktop)
     canvas.addEventListener('mousemove', handleMouseMove);
 
+    // Double click to boost (desktop)
+    canvas.addEventListener('dblclick', () => {
+        if (isAlive) {
+            socket.emit('player_boost');
+            vibrate(50);
+            console.log('Boost activated!');
+        }
+    });
+
     // Touch controls (mobile)
-    canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+    let lastTouchTime = 0;
+    canvas.addEventListener('touchstart', (e) => {
+        handleTouchStart(e);
+
+        // Double tap detection
+        const currentTime = new Date().getTime();
+        const tapLength = currentTime - lastTouchTime;
+        if (tapLength < 300 && tapLength > 0) {
+            // Double tap detected
+            if (isAlive) {
+                socket.emit('player_boost');
+                vibrate(50);
+                console.log('Boost activated (mobile)!');
+            }
+            e.preventDefault();
+        }
+        lastTouchTime = currentTime;
+    }, { passive: false });
+
     canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
     canvas.addEventListener('touchend', () => vibrate(10), { passive: false });
 

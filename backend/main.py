@@ -106,6 +106,15 @@ async def player_move(sid, data):
 
 
 @sio.event
+async def player_boost(sid, data):
+    """Handle player boost request (double click/tap)"""
+    if sid not in connected_players or not connected_players[sid]['joined']:
+        return
+    
+    game.activate_boost(sid)
+
+
+@sio.event
 async def respawn(sid, data):
     """Handle player respawn request"""
     player_name = data.get('name', 'Anonymous')

@@ -14,6 +14,8 @@ from backend.config import (
 from backend.spatial_hash import SpatialHashGrid
 
 
+import time
+
 @dataclass
 class Player:
     """Represents a player in the game"""
@@ -26,6 +28,7 @@ class Player:
     target_y: float = 0
     color: str = '#3498db'
     alive: bool = True
+    boost_until: float = 0.0
     
     @property
     def radius(self) -> float:
@@ -35,7 +38,11 @@ class Player:
     @property
     def speed(self) -> float:
         """Calculate speed based on mass (decreases as mass increases)"""
-        return PLAYER_BASE_SPEED / (self.mass ** SPEED_MASS_EXPONENT)
+        base_speed = PLAYER_BASE_SPEED / (self.mass ** SPEED_MASS_EXPONENT)
+        # Check if boost is active
+        if time.time() < self.boost_until:
+            return base_speed * 2.0  # 2x speed boost
+        return base_speed
     
     def to_dict(self) -> dict:
         """Convert player to dictionary for network transmission"""
@@ -152,6 +159,12 @@ class GameState:
         if player_id in self.players:
             self.players[player_id].target_x = target_x
             self.players[player_id].target_y = target_y
+
+    def activate_boost(self, player_id: str):
+        """Activate speed boost for a player"""
+        if player_id in self.players:
+            # Set boost for 3 seconds from now
+            self.players[player_id].boost_until = time.time() + 3.0
     
     def update(self, delta_time: float):
         """Update game state (called every tick)"""
