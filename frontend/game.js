@@ -19,6 +19,9 @@ let gameState = {
     leaderboard: [],
     obstacles: []
 };
+// Interpolation variables
+let stateBuffer = [];
+const INTERPOLATION_OFFSET = 100; // ms delay to allow for smooth interpolation
 let camera = { x: 0, y: 0 };
 let mousePos = { x: MAP_WIDTH / 2, y: MAP_HEIGHT / 2 };
 let isAlive = false;
@@ -123,7 +126,19 @@ function initSocket() {
     });
 
     socket.on('game_state', (state) => {
-        gameState = state;
+        // Add timestamp to state
+        state.timestamp = Date.now();
+        stateBuffer.push(state);
+
+        // Keep buffer small
+        if (stateBuffer.length > 10) {
+            stateBuffer.shift();
+        }
+
+        // Update non-interpolated data directly
+        gameState.leaderboard = state.leaderboard;
+        gameState.food = state.food; // Food doesn't move much, instant update is fine
+        gameState.obstacles = state.obstacles;
     });
 
     socket.on('player_died', (data) => {
@@ -248,6 +263,82 @@ function updateCamera() {
 }
 
 /**
+ * Get interpolated game state for smooth rendering
+ */
+function getInterpolatedState() {
+    const renderTime = Date.now() - INTERPOLATION_OFFSET;
+
+    // If we don't have enough states, return latest or empty
+    if (stateBuffer.length === 0) return gameState;
+    if (stateBuffer.length === 1) return stateBuffer[0];
+
+    // Find the two states surrounding the render time
+    let previousState = null;
+    let nextState = null;
+
+    for (let i = stateBuffer.length - 1; i >= 0; i--) {
+        if (stateBuffer[i].timestamp <= renderTime) {
+            previousState = stateBuffer[i];
+            nextState = stateBuffer[i + 1];
+            break;
+        }
+    }
+
+    // If we're behind the oldest state, just use the oldest
+    if (!previousState) {
+        return stateBuffer[0];
+    }
+
+    // If we're ahead of the newest state (shouldn't happen with sufficient offset), use the newest
+    if (!nextState) {
+        return stateBuffer[stateBuffer.length - 1];
+    }
+
+    // Calculate interpolation factor (0.0 to 1.0)
+    const totalTime = nextState.timestamp - previousState.timestamp;
+    const elapsedTime = renderTime - previousState.timestamp;
+    const t = Math.max(0, Math.min(1, elapsedTime / totalTime));
+
+    // Interpolate players
+    const interpolatedPlayers = [];
+
+    // Create a map of next players for easy lookup
+    const nextPlayersMap = new Map(nextState.players.map(p => [p.id, p]));
+
+    previousState.players.forEach(prevPlayer => {
+        const nextPlayer = nextPlayersMap.get(prevPlayer.id);
+
+        if (nextPlayer) {
+            // Interpolate position and mass
+            const interpolatedPlayer = {
+                ...nextPlayer, // Copy other properties (name, color, etc.)
+                x: prevPlayer.x + (nextPlayer.x - prevPlayer.x) * t,
+                y: prevPlayer.y + (nextPlayer.y - prevPlayer.y) * t,
+                mass: prevPlayer.mass + (nextPlayer.mass - prevPlayer.mass) * t,
+                radius: prevPlayer.radius + (nextPlayer.radius - prevPlayer.radius) * t
+            };
+            interpolatedPlayers.push(interpolatedPlayer);
+        } else {
+            // Player disappeared in next state, maybe keep showing them for a frame or just drop
+            // For now, we'll drop them to avoid ghosts
+        }
+    });
+
+    // Also include new players that appeared in nextState but weren't in previousState
+    // (Optional: could fade them in, but instant appearance is standard)
+    nextState.players.forEach(nextPlayer => {
+        if (!previousState.players.find(p => p.id === nextPlayer.id)) {
+            interpolatedPlayers.push(nextPlayer);
+        }
+    });
+
+    return {
+        ...gameState,
+        players: interpolatedPlayers
+    };
+}
+
+/**
  * Render the game
  */
 function render() {
@@ -274,8 +365,19 @@ function render() {
         );
     });
 
+    // Get interpolated state for rendering
+    const renderState = getInterpolatedState();
+
+    // Update camera based on interpolated player position
+    // We need to update global playerData reference for camera to work correctly with interpolation
+    const currentInterpolatedPlayer = renderState.players.find(p => p.id === playerId);
+    if (currentInterpolatedPlayer) {
+        // Update the global playerData with interpolated values so camera follows smoothly
+        playerData = currentInterpolatedPlayer;
+    }
+
     // Draw players (sorted by mass so larger players draw on top)
-    const sortedPlayers = [...gameState.players].sort((a, b) => a.mass - b.mass);
+    const sortedPlayers = [...renderState.players].sort((a, b) => a.mass - b.mass);
     sortedPlayers.forEach(player => {
         const isCurrentPlayer = player.id === playerId;
 
