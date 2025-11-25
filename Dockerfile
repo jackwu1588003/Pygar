@@ -24,12 +24,15 @@ COPY frontend/ ./frontend/
 # Make sure scripts in .local are usable
 ENV PATH=/root/.local/bin:$PATH
 
-# Expose port 8000
-EXPOSE 8000
+# Set default port (Zeabur will override this)
+ENV PORT=8000
 
-# Health check
+# Expose port (dynamic based on PORT env var)
+EXPOSE ${PORT}
+
+# Health check - uses PORT env var
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"
+    CMD python -c "import os, urllib.request; urllib.request.urlopen(f'http://localhost:{os.getenv(\"PORT\", \"8000\")}/health')"
 
-# Run the application
-CMD ["uvicorn", "backend.main:socket_app", "--host", "0.0.0.0", "--port", "8000"]
+# Run the application - uses PORT env var
+CMD uvicorn backend.main:socket_app --host 0.0.0.0 --port ${PORT}
