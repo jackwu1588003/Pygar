@@ -21,7 +21,7 @@ PLAYER_RADIUS_MULTIPLIER = 1.5  # radius = sqrt(mass) * multiplier
 # Food Configuration
 FOOD_COUNT = 200  # Number of food items on map
 FOOD_MASS = 1
-FOOD_RADIUS = 5
+FOOD_RADIUS = 8  # Increased from 5 for better visibility
 FOOD_COLORS = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', 
                '#F7DC6F', '#BB8FCE', '#85C1E2', '#F8B739', '#52C285']
 

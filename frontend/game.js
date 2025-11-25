@@ -78,7 +78,7 @@ function toggleTheme() {
     // Update theme display
     const themeSpan = document.getElementById('currentTheme');
     if (themeSpan) {
-        themeSpan.textContent = currentTheme === 'light' ? '淺色' : '深色';
+        themeSpan.textContent = currentTheme === 'light' ? 'Light' : 'Dark';
     }
 
     vibrate(20);
@@ -336,43 +336,154 @@ function drawGrid() {
 function drawObstacle(obstacle) {
     const x = obstacle.x - camera.x;
     const y = obstacle.y - camera.y;
+    const centerX = x + obstacle.width / 2;
+    const centerY = y + obstacle.height / 2;
 
-    // Obstacle fill
-    const obstacleColor = currentTheme === 'light' ? '#d0d0d0' : '#4a4a4a';
-    ctx.fillStyle = obstacleColor;
+    // Draw shadow first
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+    ctx.shadowBlur = 20;
+    ctx.shadowOffsetX = 5;
+    ctx.shadowOffsetY = 5;
+
+    // Create gradient fill for safe zone
+    const gradient = ctx.createRadialGradient(
+        centerX, centerY, 0,
+        centerX, centerY, Math.max(obstacle.width, obstacle.height) * 0.7
+    );
+
+    if (currentTheme === 'light') {
+        gradient.addColorStop(0, '#e8f4f8');
+        gradient.addColorStop(0.5, '#b8dce8');
+        gradient.addColorStop(1, '#88c4d8');
+    } else {
+        gradient.addColorStop(0, '#2a4858');
+        gradient.addColorStop(0.5, '#1a3848');
+        gradient.addColorStop(1, '#0a2838');
+    }
+
+    ctx.fillStyle = gradient;
     ctx.fillRect(x, y, obstacle.width, obstacle.height);
 
-    // Border
-    const borderColor = currentTheme === 'light' ? '#999' : '#666';
-    ctx.strokeStyle = borderColor;
-    ctx.lineWidth = 3;
+    // Reset shadow for border
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
+
+    // Draw glowing animated border
+    const time = Date.now() / 1000;
+    const glowIntensity = 0.5 + Math.sin(time * 2) * 0.3;
+
+    // Outer glow
+    ctx.strokeStyle = currentTheme === 'light'
+        ? `rgba(102, 126, 234, ${glowIntensity})`
+        : `rgba(136, 196, 216, ${glowIntensity})`;
+    ctx.lineWidth = 8;
+    ctx.strokeRect(x - 2, y - 2, obstacle.width + 4, obstacle.height + 4);
+
+    // Main border
+    const borderGradient = ctx.createLinearGradient(x, y, x + obstacle.width, y + obstacle.height);
+    if (currentTheme === 'light') {
+        borderGradient.addColorStop(0, '#667eea');
+        borderGradient.addColorStop(1, '#764ba2');
+    } else {
+        borderGradient.addColorStop(0, '#4a9ecc');
+        borderGradient.addColorStop(1, '#58b8e8');
+    }
+    ctx.strokeStyle = borderGradient;
+    ctx.lineWidth = 4;
     ctx.strokeRect(x, y, obstacle.width, obstacle.height);
 
-    // Label
-    ctx.fillStyle = currentTheme === 'light' ? '#666' : '#ccc';
-    ctx.font = 'bold 16px Arial';
+    // Inner highlight
+    ctx.strokeStyle = currentTheme === 'light'
+        ? 'rgba(255, 255, 255, 0.5)'
+        : 'rgba(255, 255, 255, 0.2)';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(x + 3, y + 3, obstacle.width - 6, obstacle.height - 6);
+
+    // Label with shadow and glow effect
+    ctx.shadowColor = currentTheme === 'light' ? 'rgba(0, 0, 0, 0.3)' : 'rgba(0, 0, 0, 0.6)';
+    ctx.shadowBlur = 8;
+    ctx.shadowOffsetX = 2;
+    ctx.shadowOffsetY = 2;
+
+    ctx.fillStyle = currentTheme === 'light' ? '#2c3e50' : '#ecf0f1';
+    ctx.font = 'bold 20px Arial';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText('安全區', x + obstacle.width / 2, y + obstacle.height / 2);
+    ctx.fillText('🛡️ Safe Zone', centerX, centerY);
+
+    // Reset shadow
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
 }
 
 /**
  * Draw a circle
  */
 function drawCircle(x, y, radius, color, isCurrentPlayer = false) {
+    // Draw shadow
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+    ctx.shadowBlur = 10;
+    ctx.shadowOffsetX = 3;
+    ctx.shadowOffsetY = 3;
+
+    // Draw main circle
     ctx.beginPath();
     ctx.arc(x, y, radius, 0, Math.PI * 2);
     ctx.fillStyle = color;
     ctx.fill();
 
-    // Add glow effect for current player
+    // Reset shadow
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
+
+    // Add prominent outline
     if (isCurrentPlayer) {
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+        // Animated glow effect for current player
+        const time = Date.now() / 1000;
+        const pulseSize = 3 + Math.sin(time * 3) * 2;
+
+        // Outer glow ring
+        ctx.beginPath();
+        ctx.arc(x, y, radius + pulseSize + 4, 0, Math.PI * 2);
+        const outerGlow = ctx.createRadialGradient(x, y, radius, x, y, radius + pulseSize + 6);
+        outerGlow.addColorStop(0, 'rgba(255, 215, 0, 0.6)');
+        outerGlow.addColorStop(0.5, 'rgba(255, 215, 0, 0.3)');
+        outerGlow.addColorStop(1, 'rgba(255, 215, 0, 0)');
+        ctx.fillStyle = outerGlow;
+        ctx.fill();
+
+        // Main golden border
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
+        ctx.strokeStyle = '#FFD700';
+        ctx.lineWidth = 5;
+        ctx.stroke();
+
+        // Inner white highlight
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
         ctx.lineWidth = 3;
         ctx.stroke();
     } else {
-        ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
+        // Regular outline for other players/food
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(0, 0, 0, 0.4)';
         ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Subtle white highlight
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+        ctx.lineWidth = 1;
         ctx.stroke();
     }
 }
