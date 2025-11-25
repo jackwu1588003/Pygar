@@ -12,15 +12,15 @@ GRID_WIDTH = MAP_WIDTH // GRID_CELL_SIZE  # 10 cells
 GRID_HEIGHT = MAP_HEIGHT // GRID_CELL_SIZE  # 10 cells
 
 # Player Configuration
-PLAYER_START_MASS = 10
-PLAYER_BASE_SPEED = 300  # Pixels per second at mass 10
+PLAYER_START_MASS = 50  # Increased from 10 for better starting size
+PLAYER_BASE_SPEED = 600  # Increased to compensate for higher start mass
 PLAYER_MIN_RADIUS = 10
 PLAYER_MAX_RADIUS = 100
 PLAYER_RADIUS_MULTIPLIER = 1.5  # radius = sqrt(mass) * multiplier
 
 # Food Configuration
 FOOD_COUNT = 200  # Number of food items on map
-FOOD_MASS = 1
+FOOD_MASS = 5
 FOOD_RADIUS = 8  # Increased from 5 for better visibility
 FOOD_COLORS = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', 
                '#F7DC6F', '#BB8FCE', '#85C1E2', '#F8B739', '#52C285']

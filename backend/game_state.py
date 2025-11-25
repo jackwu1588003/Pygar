@@ -74,11 +74,31 @@ class Food:
 class GameState:
     """Manages the entire game state"""
     
+    # Vibrant player colors that are easy to distinguish
+    PLAYER_COLORS = [
+        '#FF1744',  # Bright Red
+        '#00E676',  # Bright Green
+        '#2979FF',  # Bright Blue
+        '#FFD600',  # Bright Yellow
+        '#FF6D00',  # Bright Orange
+        '#D500F9',  # Bright Purple
+        '#00E5FF',  # Bright Cyan
+        '#FF4081',  # Bright Pink
+        '#76FF03',  # Bright Lime
+        '#F50057',  # Bright Magenta
+        '#00BFA5',  # Bright Teal
+        '#FFAB00',  # Bright Amber
+        '#651FFF',  # Bright Deep Purple
+        '#FF3D00',  # Bright Deep Orange
+        '#1DE9B6',  # Bright Aqua
+    ]
+    
     def __init__(self):
         self.players: Dict[str, Player] = {}
         self.food: Dict[str, Food] = {}
         self.spatial_grid = SpatialHashGrid()
         self.next_food_id = 0
+        self.next_color_index = 0  # For cycling through player colors
         
         # Initialize food
         self._spawn_initial_food()
@@ -105,12 +125,16 @@ class GameState:
     
     def add_player(self, player_id: str, name: str) -> Player:
         """Add a new player to the game"""
+        # Get next color from the list (cycling through)
+        player_color = self.PLAYER_COLORS[self.next_color_index % len(self.PLAYER_COLORS)]
+        self.next_color_index += 1
+        
         player = Player(
             id=player_id,
             name=name,
             x=random.uniform(100, MAP_WIDTH - 100),
             y=random.uniform(100, MAP_HEIGHT - 100),
-            color=f"#{random.randint(0, 0xFFFFFF):06x}"
+            color=player_color
         )
         
         self.players[player_id] = player
@@ -146,8 +170,12 @@ class GameState:
                 dx /= distance
                 dy /= distance
                 
-                # Move player based on speed
-                move_distance = player.speed * delta_time
+                # Speed factor: allow moving slower by keeping mouse close
+                # Full speed at 150px distance
+                speed_factor = min(distance / 150.0, 1.0)
+                
+                # Move player based on speed and mouse distance
+                move_distance = player.speed * speed_factor * delta_time
                 player.x += dx * move_distance
                 player.y += dy * move_distance
                 
@@ -182,7 +210,8 @@ class GameState:
                         (player.x - food.x) ** 2 + (player.y - food.y) ** 2
                     )
                     
-                    if distance < player.radius:
+                    # Check if player touches food (any overlap)
+                    if distance < player.radius + food.radius:
                         # Player eats food
                         player.mass += food.mass
                         self.spatial_grid.remove(entity_id)

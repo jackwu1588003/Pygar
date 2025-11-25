@@ -106,20 +106,24 @@ input[type="text"] {
     font-size: 1.1em;
     border: 2px solid rgba(255, 255, 255, 0.3);
     border-radius: 10px;
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
+    background: rgba(255, 255, 255, 0.2);
+    color: var(--text-color);
     outline: none;
     margin-bottom: 20px;
     transition: all 0.3s ease;
 }
 
 input[type="text"]::placeholder {
+    color: rgba(100, 100, 100, 0.6);
+}
+
+[data-theme="dark"] input[type="text"]::placeholder {
     color: rgba(255, 255, 255, 0.6);
 }
 
 input[type="text"]:focus {
     border-color: #667eea;
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.3);
     box-shadow: 0 0 20px rgba(102, 126, 234, 0.5);
 }
 
@@ -233,7 +237,9 @@ input[type="text"]:focus {
 #finalMass {
     color: #667eea;
     font-weight: bold;
-}/* Theme toggle button */
+}
+
+/* Theme toggle button */
 .theme-toggle {
     position: fixed;
     top: 20px;

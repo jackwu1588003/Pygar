@@ -333,91 +333,86 @@ function drawGrid() {
 /**
  * Draw an obstacle (safe zone)
  */
+// Load assets
+const safeZoneImg = new Image();
+safeZoneImg.src = '/static/assets/safe_zone.png';
+
+/**
+ * Draw an obstacle (safe zone)
+ */
+/**
+ * Draw an obstacle (safe zone)
+ */
 function drawObstacle(obstacle) {
     const x = obstacle.x - camera.x;
     const y = obstacle.y - camera.y;
     const centerX = x + obstacle.width / 2;
     const centerY = y + obstacle.height / 2;
 
-    // Draw shadow first
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
-    ctx.shadowBlur = 20;
-    ctx.shadowOffsetX = 5;
-    ctx.shadowOffsetY = 5;
+    // Use a slightly larger size for the image to make it pop
+    const size = Math.max(obstacle.width, obstacle.height) * 1.2;
+    const imgX = centerX - size / 2;
+    const imgY = centerY - size / 2;
 
-    // Create gradient fill for safe zone
-    const gradient = ctx.createRadialGradient(
-        centerX, centerY, 0,
-        centerX, centerY, Math.max(obstacle.width, obstacle.height) * 0.7
-    );
+    if (safeZoneImg.complete && safeZoneImg.naturalWidth !== 0) {
+        // Draw the cute image
+        ctx.drawImage(safeZoneImg, imgX, imgY, size, size);
 
-    if (currentTheme === 'light') {
-        gradient.addColorStop(0, '#e8f4f8');
-        gradient.addColorStop(0.5, '#b8dce8');
-        gradient.addColorStop(1, '#88c4d8');
+        // Draw label below the image
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+        ctx.shadowBlur = 4;
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 16px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        ctx.fillText('Safe Zone', centerX, centerY + size * 0.3);
+        ctx.shadowColor = 'transparent';
+
     } else {
-        gradient.addColorStop(0, '#2a4858');
-        gradient.addColorStop(0.5, '#1a3848');
-        gradient.addColorStop(1, '#0a2838');
+        // Fallback to gradient if image not loaded
+        // Draw shadow first
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+        ctx.shadowBlur = 20;
+        ctx.shadowOffsetX = 5;
+        ctx.shadowOffsetY = 5;
+
+        // Create gradient fill for safe zone
+        const gradient = ctx.createRadialGradient(
+            centerX, centerY, 0,
+            centerX, centerY, Math.max(obstacle.width, obstacle.height) * 0.7
+        );
+
+        if (currentTheme === 'light') {
+            gradient.addColorStop(0, '#e8f4f8');
+            gradient.addColorStop(0.5, '#b8dce8');
+            gradient.addColorStop(1, '#88c4d8');
+        } else {
+            gradient.addColorStop(0, '#2a4858');
+            gradient.addColorStop(0.5, '#1a3848');
+            gradient.addColorStop(1, '#0a2838');
+        }
+
+        ctx.fillStyle = gradient;
+        ctx.fillRect(x, y, obstacle.width, obstacle.height);
+
+        // Reset shadow
+        ctx.shadowColor = 'transparent';
+        ctx.shadowBlur = 0;
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = 0;
+
+        // Draw border
+        ctx.strokeStyle = '#4a9ecc';
+        ctx.lineWidth = 4;
+        ctx.strokeRect(x, y, obstacle.width, obstacle.height);
+
+        // Label
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 20px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('Safe Zone', centerX, centerY);
     }
-
-    ctx.fillStyle = gradient;
-    ctx.fillRect(x, y, obstacle.width, obstacle.height);
-
-    // Reset shadow for border
-    ctx.shadowColor = 'transparent';
-    ctx.shadowBlur = 0;
-    ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = 0;
-
-    // Draw glowing animated border
-    const time = Date.now() / 1000;
-    const glowIntensity = 0.5 + Math.sin(time * 2) * 0.3;
-
-    // Outer glow
-    ctx.strokeStyle = currentTheme === 'light'
-        ? `rgba(102, 126, 234, ${glowIntensity})`
-        : `rgba(136, 196, 216, ${glowIntensity})`;
-    ctx.lineWidth = 8;
-    ctx.strokeRect(x - 2, y - 2, obstacle.width + 4, obstacle.height + 4);
-
-    // Main border
-    const borderGradient = ctx.createLinearGradient(x, y, x + obstacle.width, y + obstacle.height);
-    if (currentTheme === 'light') {
-        borderGradient.addColorStop(0, '#667eea');
-        borderGradient.addColorStop(1, '#764ba2');
-    } else {
-        borderGradient.addColorStop(0, '#4a9ecc');
-        borderGradient.addColorStop(1, '#58b8e8');
-    }
-    ctx.strokeStyle = borderGradient;
-    ctx.lineWidth = 4;
-    ctx.strokeRect(x, y, obstacle.width, obstacle.height);
-
-    // Inner highlight
-    ctx.strokeStyle = currentTheme === 'light'
-        ? 'rgba(255, 255, 255, 0.5)'
-        : 'rgba(255, 255, 255, 0.2)';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(x + 3, y + 3, obstacle.width - 6, obstacle.height - 6);
-
-    // Label with shadow and glow effect
-    ctx.shadowColor = currentTheme === 'light' ? 'rgba(0, 0, 0, 0.3)' : 'rgba(0, 0, 0, 0.6)';
-    ctx.shadowBlur = 8;
-    ctx.shadowOffsetX = 2;
-    ctx.shadowOffsetY = 2;
-
-    ctx.fillStyle = currentTheme === 'light' ? '#2c3e50' : '#ecf0f1';
-    ctx.font = 'bold 20px Arial';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('🛡️ Safe Zone', centerX, centerY);
-
-    // Reset shadow
-    ctx.shadowColor = 'transparent';
-    ctx.shadowBlur = 0;
-    ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = 0;
 }
 
 /**
@@ -489,18 +484,56 @@ function drawCircle(x, y, radius, color, isCurrentPlayer = false) {
 }
 
 /**
- * Draw text
+ * Draw text (player name)
  */
-function drawText(text, x, y, maxWidth) {
-    ctx.fillStyle = 'white';
-    ctx.strokeStyle = 'black';
-    ctx.lineWidth = 3;
-    ctx.font = 'bold 14px Arial';
+function drawText(text, x, y, playerRadius) {
+    // Calculate font size based on circle radius
+    // Smaller circles get smaller text, larger circles get larger text
+    let fontSize;
+    if (playerRadius < 15) {
+        fontSize = 10;
+    } else if (playerRadius < 25) {
+        fontSize = 12;
+    } else if (playerRadius < 40) {
+        fontSize = 14;
+    } else if (playerRadius < 60) {
+        fontSize = 18;
+    } else if (playerRadius < 80) {
+        fontSize = 22;
+    } else {
+        fontSize = 26;
+    }
+
+    // Set font with calculated size
+    ctx.font = `bold ${fontSize}px Arial`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
-    ctx.strokeText(text, x, y);
-    ctx.fillText(text, x, y);
+    // Measure text width to ensure it fits in circle
+    const textWidth = ctx.measureText(text).width;
+    const maxWidth = playerRadius * 1.8; // Text should fit within circle diameter
+
+    // If text is too wide, truncate with ellipsis
+    let displayText = text;
+    if (textWidth > maxWidth) {
+        // Try to fit text by reducing it
+        let truncated = text;
+        while (ctx.measureText(truncated + '...').width > maxWidth && truncated.length > 0) {
+            truncated = truncated.slice(0, -1);
+        }
+        displayText = truncated + '...';
+    }
+
+    // Draw text with strong outline for better visibility
+    // Black outline (thicker for larger text)
+    const outlineWidth = Math.max(3, fontSize / 5);
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.8)';
+    ctx.lineWidth = outlineWidth;
+    ctx.strokeText(displayText, x, y);
+
+    // White text fill
+    ctx.fillStyle = 'white';
+    ctx.fillText(displayText, x, y);
 }
 
 /**
