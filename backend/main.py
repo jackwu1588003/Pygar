@@ -111,6 +111,7 @@ async def player_boost(sid, data):
     if sid not in connected_players or not connected_players[sid]['joined']:
         return
     
+    print(f"Player {sid} activated boost!")
     game.activate_boost(sid)
 
 

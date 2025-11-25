@@ -595,7 +595,7 @@ function init() {
     // Double click to boost (desktop)
     canvas.addEventListener('dblclick', () => {
         if (isAlive) {
-            socket.emit('player_boost');
+            socket.emit('player_boost', {});
             vibrate(50);
             console.log('Boost activated!');
         }
@@ -612,7 +612,7 @@ function init() {
         if (tapLength < 300 && tapLength > 0) {
             // Double tap detected
             if (isAlive) {
-                socket.emit('player_boost');
+                socket.emit('player_boost', {});
                 vibrate(50);
                 console.log('Boost activated (mobile)!');
             }
