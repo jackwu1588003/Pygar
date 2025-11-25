@@ -202,6 +202,15 @@ class GameState:
         # Check collisions
         self._check_collisions()
     
+    def _is_in_safe_zone(self, player: Player) -> bool:
+        """Check if player is inside any safe zone"""
+        for ox, oy, ow, oh in OBSTACLES:
+            # Check if player's center is inside the rectangle
+            if (ox <= player.x <= ox + ow and 
+                oy <= player.y <= oy + oh):
+                return True
+        return False
+
     def _check_collisions(self):
         """Check for collisions between players and food, and between players"""
         for player in list(self.players.values()):
@@ -239,6 +248,10 @@ class GameState:
                     other_player = self.players[entity_id]
                     
                     if not other_player.alive:
+                        continue
+                    
+                    # Check if either player is in a safe zone
+                    if self._is_in_safe_zone(player) or self._is_in_safe_zone(other_player):
                         continue
                     
                     # Check if players overlap
