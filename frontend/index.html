@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pygar - Multiplayer Game</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+
+<body>
+    <!-- Theme toggle button -->
+    <button id="themeToggle" class="theme-toggle" title="切換主題">🌓</button>
+
+    <div id="game-container">
+        <!-- Canvas for game rendering -->
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+        <!-- Start screen overlay -->
+        <div id="startScreen" class="overlay">
+            <div class="overlay-content">
+                <h1>🎮 Pygar</h1>
+                <p>Eat food and smaller players to grow!</p>
+                <input type="text" id="playerName" placeholder="Enter your name" maxlength="15" autocomplete="off">
+                <button id="playButton" class="btn-primary">Play</button>
+            </div>
+        </div>
+
+        <!-- Death screen overlay -->
+        <div id="deathScreen" class="overlay hidden">
+            <div class="overlay-content">
+                <h1>💀 You Died!</h1>
+                <p id="finalStats">Your mass: <span id="finalMass">0</span></p>
+                <button id="respawnButton" class="btn-primary">Respawn</button>
+            </div>
+        </div>
+
+        <!-- Leaderboard -->
+        <div id="leaderboard" class="hidden">
+            <h3>🏆 Leaderboard</h3>
+            <ol id="leaderboardList"></ol>
+        </div>
+
+        <!-- Player stats -->
+        <div id="playerStats" class="hidden">
+            <div>質量: <span id="playerMass">0</span></div>
+            <div>排名: <span id="playerRank">-</span></div>
+            <div>主題: <span id="currentTheme">淺色</span></div>
+        </div>
+
+        <!-- Connection status -->
+        <div id="connectionStatus">Connecting...</div>
+    </div>
+
+    <!-- Socket.IO client library -->
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+
+    <!-- Game JavaScript -->
+    <script src="/static/game.js"></script>
+</body>
+
+</html>
