@@ -1,14 +1,14 @@
-# 生長機制驗證報告
+# Growth Mechanism Verification Report
 
-## ✅ 需求確認：吃越多，身體越大
+## ✅ Requirement Confirmation: Eat more, grow bigger
 
-**答案：是的，完全符合這個需求！**
+**Answer: Yes, this requirement is fully met!**
 
-## 📊 機制說明
+## 📊 Mechanism Explanation
 
-### 質量與體積的關係
+### Relationship between Mass and Volume
 
-在 `backend/game_state.py` 中，Player 類的半徑計算：
+In `backend/game_state.py`, the Player class radius calculation:
 
 ```python
 @property
@@ -17,102 +17,102 @@ def radius(self) -> float:
     return math.sqrt(self.mass) * PLAYER_RADIUS_MULTIPLIER  # 1.5
 ```
 
-### 質量增長方式
+### Mass Growth Methods
 
-1. **吃食物**（`backend/game_state.py:186-192`）:
+1. **Eating Food** (`backend/game_state.py:186-192`):
    ```python
    if distance < player.radius:
        # Player eats food
-       player.mass += food.mass  # +1 質量
+       player.mass += food.mass  # +1 Mass
    ```
 
-2. **吃其他玩家**（`backend/game_state.py:210-213`）:
+2. **Eating Other Players** (`backend/game_state.py:210-213`):
    ```python
    if distance < player.radius:
        # Player eats other player
-       player.mass += other_player.mass  # 吸收全部質量
+       player.mass += other_player.mass  # Absorb all mass
    ```
 
-### 實際效果表
+### Actual Effect Table
 
-| 質量 | 半徑 | 體積變化 |
-|------|------|----------|
-| 10 (初始) | 4.7 | 基準 |
+| Mass | Radius | Volume Change |
+|------|--------|---------------|
+| 10 (Initial) | 4.7 | Baseline |
 | 20 | 6.7 | +42% |
 | 50 | 10.6 | +125% |
 | 100 | 15.0 | +219% |
 | 200 | 21.2 | +351% |
 | 500 | 33.5 | +612% |
 
-## 🎮 實測驗證
+## 🎮 Practical Verification
 
-### 測試過程
-1. 玩家初始質量：10
-2. 移動角色吃食物 5 秒
-3. 觀察體積變化
+### Test Process
+1. Player initial mass: 10
+2. Move character to eat food for 5 seconds
+3. Observe volume change
 
-### 測試截圖
+### Test Screenshots
 
-**吃食物前：**
-![吃食物前](file:///Users/wujunyi/.gemini/antigravity/brain/9490df37-5dfb-4397-92d3-4cfc9d422c64/before_eating_1764061967639.png)
+**Before Eating:**
+![Before Eating](file:///Users/wujunyi/.gemini/antigravity/brain/9490df37-5dfb-4397-92d3-4cfc9d422c64/before_eating_1764061967639.png)
 
-**吃食物後：**
-![吃食物後](file:///Users/wujunyi/.gemini/antigravity/brain/9490df37-5dfb-4397-92d3-4cfc9d422c64/after_eating_1764061978371.png)
+**After Eating:**
+![After Eating](file:///Users/wujunyi/.gemini/antigravity/brain/9490df37-5dfb-4397-92d3-4cfc9d422c64/after_eating_1764061978371.png)
 
-### 測試錄影
+### Test Video
 
-完整生長過程演示：
+Complete growth process demonstration:
 
-![生長機制測試](file:///Users/wujunyi/.gemini/antigravity/brain/9490df37-5dfb-4397-92d3-4cfc9d422c64/growth_mechanic_test_1764061962191.webp)
+![Growth Mechanism Test](file:///Users/wujunyi/.gemini/antigravity/brain/9490df37-5dfb-4397-92d3-4cfc9d422c64/growth_mechanic_test_1764061962191.webp)
 
-### 測試結果 ✅
+### Test Results ✅
 
-- ✅ 質量從 10 增加到 11+
-- ✅ 圓圈明顯變大
-- ✅ 視覺效果清晰可見
-- ✅ 平滑成長動畫
+- ✅ Mass increased from 10 to 11+
+- ✅ Circle visibly larger
+- ✅ Visual effects clearly visible
+- ✅ Smooth growth animation
 
-## 🎯 遊戲平衡
+## 🎯 Game Balance
 
-### 速度懲罰
-為了平衡遊戲性，體積越大速度越慢：
+### Speed Penalty
+To balance gameplay, larger volume means slower speed:
 
 ```python
 @property
 def speed(self) -> float:
     """Calculate speed based on mass"""
     return PLAYER_BASE_SPEED / (self.mass ** SPEED_MASS_EXPONENT)
-    # 300 / sqrt(質量)
+    # 300 / sqrt(mass)
 ```
 
-這意味著：
-- 質量 10 → 速度 94.9 px/s
-- 質量 100 → 速度 30.0 px/s
-- 質量 1000 → 速度 9.5 px/s
+This means:
+- Mass 10 → Speed 94.9 px/s
+- Mass 100 → Speed 30.0 px/s
+- Mass 1000 → Speed 9.5 px/s
 
-**好處**：
-- 小玩家更靈活，可以逃跑
-- 大玩家更強大，但移動慢
-- 創造策略性的追逐戰
+**Benefits**:
+- Small players are more agile and can escape
+- Large players are powerful but slow
+- Creates strategic chase gameplay
 
-## 🔧 配置選項
+## 🔧 Configuration Options
 
-在 `backend/config.py` 中可調整：
+Adjustable in `backend/config.py`:
 
 ```python
-PLAYER_START_MASS = 10           # 初始質量
-PLAYER_RADIUS_MULTIPLIER = 1.5   # 半徑倍數
-FOOD_MASS = 1                    # 每個食物的質量
-EAT_MASS_RATIO = 1.1            # 需大10%才能吃對手
+PLAYER_START_MASS = 10           # Initial mass
+PLAYER_RADIUS_MULTIPLIER = 1.5   # Radius multiplier
+FOOD_MASS = 1                    # Mass per food item
+EAT_MASS_RATIO = 1.1            # Must be 10% larger to eat opponent
 ```
 
-## ✅ 結論
+## ✅ Conclusion
 
-**完全符合需求！** 遊戲已正確實現：
-1. ✅ 吃食物 → 質量增加
-2. ✅ 吃玩家 → 質量大幅增加
-3. ✅ 質量增加 → 圓圈變大
-4. ✅ 視覺反饋清晰
-5. ✅ 遊戲平衡良好（速度懲罰）
+**Fully meets requirements!** The game has correctly implemented:
+1. ✅ Eat food → Mass increases
+2. ✅ Eat players → Mass increases significantly
+3. ✅ Mass increases → Circle gets bigger
+4. ✅ Clear visual feedback
+5. ✅ Good game balance (speed penalty)
 
-成長機制運作完美，符合 Agar.io 的核心玩法！
+The growth mechanism works perfectly, consistent with Agar.io's core gameplay!

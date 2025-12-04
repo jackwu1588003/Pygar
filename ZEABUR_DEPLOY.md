@@ -1,113 +1,113 @@
-# Zeabur 部署指南
+# Zeabur Deployment Guide
 
-## ✅ 修正內容
+## ✅ Fixes Applied
 
-### 問題
-Zeabur 使用環境變量 `PORT` 來動態分配端口，但原始配置硬編碼了端口 8000。
+### Issue
+Zeabur uses the environment variable `PORT` to dynamically assign a port, but the original configuration hardcoded port 8000.
 
-### 解決方案
+### Solution
 
-已更新以下文件以支持動態端口：
+The following files have been updated to support dynamic ports:
 
-#### 1. Dockerfile 修改
+#### 1. Dockerfile Modification
 
 ```dockerfile
-# 設置默認端口（Zeabur 會覆蓋此值）
+# Set default port (Zeabur will override this)
 ENV PORT=8000
 
-# 動態暴露端口
+# Expose port dynamically
 EXPOSE ${PORT}
 
-# Health check 使用 PORT 環境變量
+# Health check uses PORT environment variable
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD python -c "import os, urllib.request; urllib.request.urlopen(f'http://localhost:{os.getenv(\"PORT\", \"8000\")}/health')"
 
-# 啟動命令使用 PORT 環境變量
+# Start command uses PORT environment variable
 CMD uvicorn backend.main:socket_app --host 0.0.0.0 --port ${PORT}
 ```
 
-**改動說明**：
-- ✅ 使用 `ENV PORT=8000` 設置默認值
-- ✅ `EXPOSE ${PORT}` 動態端口暴露
-- ✅ CMD 命令使用 `${PORT}` 環境變量
-- ✅ Health check 讀取環境變量
+**Changes Explained**:
+- ✅ Used `ENV PORT=8000` to set a default value
+- ✅ `EXPOSE ${PORT}` for dynamic port exposure
+- ✅ CMD command uses `${PORT}` environment variable
+- ✅ Health check reads environment variable
 
-#### 2. 新增 start.sh（備用方案）
+#### 2. Added start.sh (Fallback)
 
-如果環境變量在 CMD 中無法正確展開，可使用啟動腳本：
+If environment variables are not correctly expanded in CMD, use the startup script:
 
 ```dockerfile
-# 在 Dockerfile 中添加
+# Add to Dockerfile
 COPY start.sh .
 RUN chmod +x start.sh
 CMD ["./start.sh"]
 ```
 
-## 🚀 Zeabur 部署步驟
+## 🚀 Zeabur Deployment Steps
 
-### 方法一：GitHub 連接部署（推薦）
+### Method 1: GitHub Connection (Recommended)
 
-1. **推送代碼到 GitHub**
+1. **Push code to GitHub**
    ```bash
    git add .
    git commit -m "Fix Zeabur port configuration"
    git push origin main
    ```
 
-2. **在 Zeabur 創建項目**
-   - 訪問 [Zeabur Dashboard](https://zeabur.com)
-   - 點擊 "New Project"
-   - 選擇你的 GitHub 倉庫
+2. **Create Project in Zeabur**
+   - Visit [Zeabur Dashboard](https://zeabur.com)
+   - Click "New Project"
+   - Select your GitHub repository
 
-3. **自動部署**
-   - Zeabur 自動檢測 Dockerfile
-   - 自動設置 PORT 環境變量
-   - 自動構建和部署
+3. **Automatic Deployment**
+   - Zeabur automatically detects Dockerfile
+   - Automatically sets PORT environment variable
+   - Automatically builds and deploys
 
-4. **訪問應用**
-   - Zeabur 會提供一個公開 URL
-   - 如：`https://your-app.zeabur.app`
+4. **Access Application**
+   - Zeabur will provide a public URL
+   - E.g., `https://your-app.zeabur.app`
 
-### 方法二：Zeabur CLI 部署
+### Method 2: Zeabur CLI Deployment
 
-1. **安裝 CLI**
+1. **Install CLI**
    ```bash
    npm install -g @zeabur/cli
    ```
 
-2. **登錄**
+2. **Login**
    ```bash
    zeabur login
    ```
 
-3. **部署**
+3. **Deploy**
    ```bash
    zeabur deploy
    ```
 
-## 🔧 環境變量配置
+## 🔧 Environment Variable Configuration
 
-Zeabur 會自動設置以下變量：
+Zeabur automatically sets the following variables:
 
-| 變量 | 說明 | 默認值 |
-|------|------|--------|
-| `PORT` | 應用監聽端口 | 由 Zeabur 動態分配 |
+| Variable | Description | Default Value |
+|----------|-------------|---------------|
+| `PORT` | Application listening port | Dynamically assigned by Zeabur |
 
-### 可選環境變量
+### Optional Environment Variables
 
-可在 Zeabur Dashboard 設置：
+Can be set in Zeabur Dashboard:
 
 ```bash
-# 在 Zeabur Dashboard > Settings > Environment Variables 添加
+# Add in Zeabur Dashboard > Settings > Environment Variables
 LOG_LEVEL=info
 MAX_PLAYERS=100
 TICK_RATE=20
 ```
 
-## 📊 驗證部署
+## 📊 Verify Deployment
 
-### 1. 檢查日誌
-在 Zeabur Dashboard 查看部署日誌：
+### 1. Check Logs
+View deployment logs in Zeabur Dashboard:
 ```
 Game server started!
 Tick rate: 20.0 TPS
@@ -115,12 +115,12 @@ Initial food count: 200
 Uvicorn running on http://0.0.0.0:XXXX
 ```
 
-### 2. 測試 Health Check
+### 2. Test Health Check
 ```bash
 curl https://your-app.zeabur.app/health
 ```
 
-應返回：
+Should return:
 ```json
 {
   "status": "healthy",
@@ -129,77 +129,77 @@ curl https://your-app.zeabur.app/health
 }
 ```
 
-### 3. 測試遊戲
-訪問 `https://your-app.zeabur.app` 並開始遊戲
+### 3. Test Game
+Visit `https://your-app.zeabur.app` and start the game.
 
-## 🐛 故障排除
+## 🐛 Troubleshooting
 
-### 問題：應用無法啟動
-**解決方案**：
-- 檢查 Zeabur 日誌
-- 確認 Dockerfile 語法正確
-- 驗證 requirements.txt 包含所有依賴
+### Issue: Application fails to start
+**Solution**:
+- Check Zeabur logs
+- Confirm Dockerfile syntax is correct
+- Verify requirements.txt contains all dependencies
 
-### 問題：WebSocket 連接失敗
-**解決方案**：
-- 確認使用 HTTPS（Zeabur 自動提供）
-- 檢查 Socket.IO CORS 設置
-- 驗證客戶端使用正確的 URL
+### Issue: WebSocket connection failed
+**Solution**:
+- Confirm using HTTPS (Zeabur provides automatically)
+- Check Socket.IO CORS settings
+- Verify client is using the correct URL
 
-### 問題：端口監聽錯誤
-**解決方案**：
-- ✅ 已修復！使用 `${PORT}` 環境變量
-- 確認 Dockerfile CMD 正確
-- 檢查日誌中的端口號
+### Issue: Port listening error
+**Solution**:
+- ✅ Fixed! Using `${PORT}` environment variable
+- Confirm Dockerfile CMD is correct
+- Check port number in logs
 
-### 問題：ModuleNotFoundError: No module named 'fastapi'
-**解決方案**：
-- 這通常是因為 Zeabur 的 "Service Path" (服務路徑) 設置錯誤。
-- **請確保 Service Path 設置為專案根目錄 (`.`)，而不是 `backend`。**
-- 如果設置為 `backend`，Zeabur 將無法找到根目錄下的 `requirements.txt` 和 `frontend` 文件夾。
-- 作為備用方案，我們已在 `backend/` 目錄下添加了 `requirements.txt`，但仍建議部署根目錄以確保前端文件可用。
+### Issue: ModuleNotFoundError: No module named 'fastapi'
+**Solution**:
+- This is usually because Zeabur's "Service Path" is set incorrectly.
+- **Please ensure Service Path is set to the project root (`.`), NOT `backend`.**
+- If set to `backend`, Zeabur cannot find `requirements.txt` and the `frontend` folder in the root.
+- As a fallback, we have added `requirements.txt` to the `backend/` directory, but deploying from root is still recommended to ensure frontend files are available.
 
-### 問題：Frontend 文件未找到
-**解決方案**：
-- 確認 Service Path 為根目錄 (`.`)。
-- 應用程序需要訪問 `frontend/` 目錄來提供靜態文件。
+### Issue: Frontend files not found
+**Solution**:
+- Confirm Service Path is root (`.`).
+- The application needs access to the `frontend/` directory to serve static files.
 
-## 📝 本地測試
+## 📝 Local Testing
 
-測試修改後的 Dockerfile：
+Test the modified Dockerfile:
 
 ```bash
-# 構建鏡像
+# Build image
 docker build -t pygar .
 
-# 使用自定義端口運行
+# Run with custom port
 docker run -p 3000:3000 -e PORT=3000 pygar
 
-# 訪問 http://localhost:3000
+# Access http://localhost:3000
 ```
 
-## ✅ 檢查清單
+## ✅ Checklist
 
-部署前確認：
-- [x] Dockerfile 使用 `${PORT}` 環境變量
-- [x] CMD 命令正確配置
-- [x] Health check 端點可訪問
-- [x] requirements.txt 完整
-- [x] 代碼已推送到 GitHub
-- [ ] 在 Zeabur 創建項目
-- [ ] 驗證部署成功
-- [ ] 測試遊戲功能
+Confirm before deployment:
+- [x] Dockerfile uses `${PORT}` environment variable
+- [x] CMD command correctly configured
+- [x] Health check endpoint accessible
+- [x] requirements.txt complete
+- [x] Code pushed to GitHub
+- [ ] Create project in Zeabur
+- [ ] Verify deployment success
+- [ ] Test game functionality
 
-## 🎮 部署後功能
+## 🎮 Post-Deployment Features
 
-部署到 Zeabur 後，你的遊戲將支持：
-- ✅ 全球訪問（公開 URL）
-- ✅ HTTPS 自動配置
-- ✅ WebSocket 支持
-- ✅ 移動端觸覺反饋（HTTPS 必需）
-- ✅ 自動擴展
-- ✅ CDN 加速
+After deploying to Zeabur, your game will support:
+- ✅ Global access (Public URL)
+- ✅ HTTPS automatic configuration
+- ✅ WebSocket support
+- ✅ Mobile haptic feedback (HTTPS required)
+- ✅ Auto-scaling
+- ✅ CDN acceleration
 
 ---
 
-**現在 Zeabur 應該可以正確監聽端口了！** 🚀
+**Zeabur should now correctly listen to the port!** 🚀
