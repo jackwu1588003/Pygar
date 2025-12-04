@@ -6,12 +6,20 @@ import math
 import random
 from typing import Dict, List, Optional
 from dataclasses import dataclass, field
-from backend.config import (
-    MAP_WIDTH, MAP_HEIGHT, PLAYER_START_MASS, PLAYER_BASE_SPEED,
-    PLAYER_RADIUS_MULTIPLIER, FOOD_COUNT, FOOD_MASS, FOOD_RADIUS,
-    FOOD_COLORS, EAT_MASS_RATIO, SPEED_MASS_EXPONENT, OBSTACLES
-)
-from backend.spatial_hash import SpatialHashGrid
+try:
+    from backend.config import (
+        MAP_WIDTH, MAP_HEIGHT, PLAYER_START_MASS, PLAYER_BASE_SPEED,
+        PLAYER_RADIUS_MULTIPLIER, FOOD_COUNT, FOOD_MASS, FOOD_RADIUS,
+        FOOD_COLORS, EAT_MASS_RATIO, SPEED_MASS_EXPONENT, OBSTACLES
+    )
+    from backend.spatial_hash import SpatialHashGrid
+except ImportError:
+    from config import (
+        MAP_WIDTH, MAP_HEIGHT, PLAYER_START_MASS, PLAYER_BASE_SPEED,
+        PLAYER_RADIUS_MULTIPLIER, FOOD_COUNT, FOOD_MASS, FOOD_RADIUS,
+        FOOD_COLORS, EAT_MASS_RATIO, SPEED_MASS_EXPONENT, OBSTACLES
+    )
+    from spatial_hash import SpatialHashGrid
 
 
 import time

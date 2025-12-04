@@ -5,7 +5,10 @@ instead of O(n²) comparisons
 """
 
 from typing import Dict, List, Set, Tuple
-from backend.config import GRID_CELL_SIZE, GRID_WIDTH, GRID_HEIGHT
+try:
+    from backend.config import GRID_CELL_SIZE, GRID_WIDTH, GRID_HEIGHT
+except ImportError:
+    from config import GRID_CELL_SIZE, GRID_WIDTH, GRID_HEIGHT
 
 
 class SpatialHashGrid:
