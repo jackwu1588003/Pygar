@@ -15,6 +15,21 @@ except ImportError:
     from game_state import GameState
     from config import TICK_INTERVAL
 
+import os
+
+# Determine frontend directory path
+# Try current directory first, then parent directory (for when running from backend/)
+if os.path.exists("frontend"):
+    FRONTEND_DIR = "frontend"
+elif os.path.exists("../frontend"):
+    FRONTEND_DIR = "../frontend"
+else:
+    # Fallback to absolute path if possible or default
+    FRONTEND_DIR = "frontend"
+    print("Warning: Could not find frontend directory, defaulting to 'frontend'")
+
+print(f"Serving frontend from: {os.path.abspath(FRONTEND_DIR)}")
+
 # Create FastAPI app
 app = FastAPI(title="Agar.io Clone")
 
@@ -31,12 +46,12 @@ socket_app = socketio.ASGIApp(
     sio,
     other_asgi_app=app,
     static_files={
-        '/': {'content_type': 'text/html', 'filename': 'frontend/index.html'},
+        '/': {'content_type': 'text/html', 'filename': os.path.join(FRONTEND_DIR, 'index.html')},
     }
 )
 
 # Mount static files
-app.mount("/static", StaticFiles(directory="frontend"), name="static")
+app.mount("/static", StaticFiles(directory=FRONTEND_DIR), name="static")
 
 # Game state instance
 game = GameState()
@@ -48,7 +63,7 @@ connected_players = {}
 @app.get("/")
 async def read_root():
     """Serve the main game page"""
-    return FileResponse('frontend/index.html')
+    return FileResponse(os.path.join(FRONTEND_DIR, 'index.html'))
 
 
 @app.get("/health")
