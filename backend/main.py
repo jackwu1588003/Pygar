@@ -8,8 +8,12 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 import socketio
-from backend.game_state import GameState
-from backend.config import TICK_INTERVAL
+try:
+    from backend.game_state import GameState
+    from backend.config import TICK_INTERVAL
+except ImportError:
+    from game_state import GameState
+    from config import TICK_INTERVAL
 
 # Create FastAPI app
 app = FastAPI(title="Agar.io Clone")
